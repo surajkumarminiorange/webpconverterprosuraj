@@ -1,10 +1,8 @@
 from pathlib import Path
 from PIL import Image
 
+# Register AVIF support
 import pillow_avif
-from pillow_heif import register_heif_opener
-
-register_heif_opener()
 
 
 SUPPORTED_EXTENSIONS = {
@@ -16,18 +14,17 @@ SUPPORTED_EXTENSIONS = {
     ".tif",
     ".gif",
     ".avif",
-    ".heic",
-    ".heif",
-    ".ico"
+    ".ico",
 }
 
 
 def convert_image(image_path, output_folder=None, quality=80):
     """
-    Converts a single image to WebP.
+    Convert a single image to WebP.
 
     Returns:
-        (success, message)
+        (True, output_path) on success
+        (False, error_message) on failure
     """
 
     try:
@@ -35,10 +32,11 @@ def convert_image(image_path, output_folder=None, quality=80):
         image_path = Path(image_path)
 
         if image_path.suffix.lower() not in SUPPORTED_EXTENSIONS:
-            return False, "Unsupported"
+            return False, "Unsupported file type"
 
         img = Image.open(image_path)
 
+        # Preserve transparency where possible
         if img.mode not in ("RGB", "RGBA"):
             img = img.convert("RGBA")
 

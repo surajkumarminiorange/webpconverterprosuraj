@@ -10,9 +10,9 @@ class WebPConverterApp(ctk.CTk, AppActions):
     def __init__(self):
         super().__init__()
 
-        # ----------------------------
-        # Window
-        # ----------------------------
+        # ==================================================
+        # Window Settings
+        # ==================================================
 
         self.title("WebP Converter Pro")
         self.geometry("1100x700")
@@ -21,14 +21,17 @@ class WebPConverterApp(ctk.CTk, AppActions):
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("blue")
 
-        # ----------------------------
-        # Data
-        # ----------------------------
+        # ==================================================
+        # Application Data
+        # ==================================================
 
+        # Selected input images
         self.selected_files = []
 
+        # None = Save beside original image
         self.output_folder = None
-        
+
+        # Supported image formats
         self.supported_extensions = {
             ".png",
             ".jpg",
@@ -41,17 +44,17 @@ class WebPConverterApp(ctk.CTk, AppActions):
             ".ico",
         }
 
-        # ----------------------------
-        # Layout
-        # ----------------------------
+        # ==================================================
+        # Window Layout
+        # ==================================================
 
         self.grid_columnconfigure(0, weight=0)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        # ----------------------------
+        # ==================================================
         # Sidebar
-        # ----------------------------
+        # ==================================================
 
         self.sidebar = Sidebar(self)
 
@@ -61,7 +64,9 @@ class WebPConverterApp(ctk.CTk, AppActions):
             sticky="ns"
         )
 
-        # Connect Sidebar Buttons
+        # ----------------------------
+        # Button Events
+        # ----------------------------
 
         self.sidebar.browse_images_btn.configure(
             command=self.browse_images
@@ -71,13 +76,17 @@ class WebPConverterApp(ctk.CTk, AppActions):
             command=self.browse_folder
         )
 
+        self.sidebar.output_button.configure(
+            command=self.choose_output_folder
+        )
+
         self.sidebar.convert_btn.configure(
             command=self.start_conversion
         )
 
-        # ----------------------------
+        # ==================================================
         # File List
-        # ----------------------------
+        # ==================================================
 
         self.file_list = FileList(self)
 

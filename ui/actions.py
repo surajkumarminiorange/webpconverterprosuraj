@@ -7,9 +7,9 @@ from converter import convert_image
 
 class AppActions:
 
-    # -----------------------------
+    # ==================================================
     # Browse Images
-    # -----------------------------
+    # ==================================================
 
     def browse_images(self):
 
@@ -33,16 +33,16 @@ class AppActions:
         self.file_list.populate(self.selected_files)
 
         self.file_list.set_status(
-            f"Status : {len(self.selected_files)} file(s) selected"
+            f"{len(self.selected_files)} file(s) selected"
         )
 
         self.sidebar.convert_btn.configure(
             state="normal"
         )
 
-    # -----------------------------
+    # ==================================================
     # Browse Folder
-    # -----------------------------
+    # ==================================================
 
     def browse_folder(self):
 
@@ -63,30 +63,53 @@ class AppActions:
                 file.is_file()
                 and file.suffix.lower() in self.supported_extensions
             ):
-
                 self.selected_files.append(file)
 
-        self.file_list.populate(
-            self.selected_files
-        )
+        self.file_list.populate(self.selected_files)
 
         self.file_list.set_status(
-            f"Status : {len(self.selected_files)} image(s) found"
+            f"{len(self.selected_files)} image(s) found"
         )
 
         self.sidebar.convert_btn.configure(
             state="normal" if self.selected_files else "disabled"
         )
 
-    # -----------------------------
-    # Start Thread
-    # -----------------------------
+    # ==================================================
+    # Choose Output Folder
+    # ==================================================
+
+    def choose_output_folder(self):
+
+        folder = filedialog.askdirectory(
+            title="Select Output Folder"
+        )
+
+        if not folder:
+            return
+
+        self.output_folder = folder
+
+        self.sidebar.set_output_folder(folder)
+
+        self.file_list.set_status(
+            "Output folder selected"
+        )
+
+    # ==================================================
+    # Start Conversion
+    # ==================================================
 
     def start_conversion(self):
+
+        if not self.selected_files:
+            return
 
         self.sidebar.convert_btn.configure(
             state="disabled"
         )
+
+        self.file_list.set_progress(0)
 
         thread = threading.Thread(
             target=self.convert_images,
@@ -95,22 +118,19 @@ class AppActions:
 
         thread.start()
 
-    # -----------------------------
+    # ==================================================
     # Convert Images
-    # -----------------------------
+    # ==================================================
 
     def convert_images(self):
 
         total = len(self.selected_files)
 
-        if total == 0:
-            return
-
-        self.file_list.set_progress(0)
-
         success = 0
 
-        quality = self.sidebar.quality_slider.get()
+        quality = int(
+            self.sidebar.quality_slider.get()
+        )
 
         for index, file in enumerate(self.selected_files):
 
@@ -121,6 +141,7 @@ class AppActions:
 
             result, message = convert_image(
                 file,
+                output_folder=self.output_folder,
                 quality=quality
             )
 
@@ -140,15 +161,17 @@ class AppActions:
                     "Failed ❌"
                 )
 
-            self.file_list.set_progress(
-                (index + 1) / total
-            )
+            progress = (index + 1) / total
+
+            self.file_list.set_progress(progress)
 
             self.file_list.set_status(
-                f"Converting {index+1}/{total}"
+                f"Converting {index + 1} of {total}"
             )
 
-            self.update()
+            self.update_idletasks()
+
+        self.file_list.set_progress(1)
 
         self.file_list.set_status(
             f"Completed • {success}/{total} converted"

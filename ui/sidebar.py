@@ -4,13 +4,17 @@ import customtkinter as ctk
 class Sidebar(ctk.CTkFrame):
 
     def __init__(self, master):
-        super().__init__(master, width=260, corner_radius=0)
+        super().__init__(
+            master,
+            width=260,
+            corner_radius=0
+        )
 
         self.grid_propagate(False)
 
-        # -------------------------
+        # ==================================================
         # Title
-        # -------------------------
+        # ==================================================
 
         self.title_label = ctk.CTkLabel(
             self,
@@ -18,7 +22,9 @@ class Sidebar(ctk.CTkFrame):
             font=("Segoe UI", 22, "bold")
         )
 
-        self.title_label.pack(pady=(25, 5))
+        self.title_label.pack(
+            pady=(25, 5)
+        )
 
         self.subtitle = ctk.CTkLabel(
             self,
@@ -26,15 +32,18 @@ class Sidebar(ctk.CTkFrame):
             font=("Segoe UI", 13)
         )
 
-        self.subtitle.pack(pady=(0, 30))
+        self.subtitle.pack(
+            pady=(0, 30)
+        )
 
-        # -------------------------
+        # ==================================================
         # Browse Buttons
-        # -------------------------
+        # ==================================================
 
         self.browse_images_btn = ctk.CTkButton(
             self,
-            text="📂 Browse Images"
+            text="📂 Browse Images",
+            height=38
         )
 
         self.browse_images_btn.pack(
@@ -45,7 +54,8 @@ class Sidebar(ctk.CTkFrame):
 
         self.browse_folder_btn = ctk.CTkButton(
             self,
-            text="📁 Browse Folder"
+            text="📁 Browse Folder",
+            height=38
         )
 
         self.browse_folder_btn.pack(
@@ -54,9 +64,9 @@ class Sidebar(ctk.CTkFrame):
             fill="x"
         )
 
-        # -------------------------
+        # ==================================================
         # Quality
-        # -------------------------
+        # ==================================================
 
         self.quality_title = ctk.CTkLabel(
             self,
@@ -91,9 +101,9 @@ class Sidebar(ctk.CTkFrame):
             pady=5
         )
 
-        # -------------------------
+        # ==================================================
         # Output Folder
-        # -------------------------
+        # ==================================================
 
         self.output_title = ctk.CTkLabel(
             self,
@@ -107,7 +117,8 @@ class Sidebar(ctk.CTkFrame):
 
         self.output_entry = ctk.CTkEntry(
             self,
-            placeholder_text="Same as source"
+            placeholder_text="Same as source",
+            state="readonly"
         )
 
         self.output_entry.pack(
@@ -117,7 +128,8 @@ class Sidebar(ctk.CTkFrame):
 
         self.output_button = ctk.CTkButton(
             self,
-            text="Choose Folder"
+            text="📁 Choose Folder",
+            height=36
         )
 
         self.output_button.pack(
@@ -126,14 +138,14 @@ class Sidebar(ctk.CTkFrame):
             fill="x"
         )
 
-        # -------------------------
+        # ==================================================
         # Convert Button
-        # -------------------------
+        # ==================================================
 
         self.convert_btn = ctk.CTkButton(
             self,
             text="🚀 Convert",
-            height=42,
+            height=45,
             state="disabled",
             font=("Segoe UI", 15, "bold")
         )
@@ -145,8 +157,37 @@ class Sidebar(ctk.CTkFrame):
             fill="x"
         )
 
-    def update_quality(self, value):
+    # ==================================================
+    # Update Quality Label
+    # ==================================================
 
+    def update_quality(self, value):
         self.quality_label.configure(
             text=f"{int(value)}%"
         )
+
+    # ==================================================
+    # Set Output Folder
+    # ==================================================
+
+    def set_output_folder(self, folder_path: str):
+
+        self.output_entry.configure(state="normal")
+
+        self.output_entry.delete(0, "end")
+
+        self.output_entry.insert(0, folder_path)
+
+        self.output_entry.configure(state="readonly")
+
+    # ==================================================
+    # Clear Output Folder
+    # ==================================================
+
+    def clear_output_folder(self):
+
+        self.output_entry.configure(state="normal")
+
+        self.output_entry.delete(0, "end")
+
+        self.output_entry.configure(state="readonly")

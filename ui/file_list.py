@@ -12,13 +12,13 @@ class FileList(ctk.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
 
-        # -------------------------
+        # ==================================================
         # Heading
-        # -------------------------
+        # ==================================================
 
         self.heading = ctk.CTkLabel(
             self,
-            text="Selected Files",
+            text="Selected Files (0)",
             font=("Segoe UI", 24, "bold")
         )
 
@@ -30,9 +30,9 @@ class FileList(ctk.CTkFrame):
             pady=(20, 10)
         )
 
-        # -------------------------
-        # File Table
-        # -------------------------
+        # ==================================================
+        # File List
+        # ==================================================
 
         self.file_frame = ctk.CTkScrollableFrame(
             self,
@@ -49,9 +49,9 @@ class FileList(ctk.CTkFrame):
 
         self.create_header()
 
-        # -------------------------
+        # ==================================================
         # Progress Bar
-        # -------------------------
+        # ==================================================
 
         self.progress = ctk.CTkProgressBar(self)
 
@@ -65,13 +65,13 @@ class FileList(ctk.CTkFrame):
             pady=(5, 5)
         )
 
-        # -------------------------
+        # ==================================================
         # Status
-        # -------------------------
+        # ==================================================
 
         self.status = ctk.CTkLabel(
             self,
-            text="Status : Ready",
+            text="Status: Ready",
             anchor="w"
         )
 
@@ -83,7 +83,7 @@ class FileList(ctk.CTkFrame):
             pady=(0, 15)
         )
 
-    # ======================================
+    # ==================================================
 
     def create_header(self):
 
@@ -95,15 +95,10 @@ class FileList(ctk.CTkFrame):
         header.pack(fill="x", pady=(0, 8))
 
         headers = [
-
-            ("File", 300),
-
+            ("File", 340),
             ("Type", 80),
-
             ("Size", 100),
-
             ("Status", 140),
-
         ]
 
         for text, width in headers:
@@ -116,7 +111,22 @@ class FileList(ctk.CTkFrame):
                 font=("Segoe UI", 14, "bold")
             ).pack(side="left")
 
-    # ======================================
+    # ==================================================
+
+    def format_size(self, size):
+
+        if size < 1024:
+            return f"{size} B"
+
+        elif size < 1024 ** 2:
+            return f"{size / 1024:.1f} KB"
+
+        elif size < 1024 ** 3:
+            return f"{size / (1024 ** 2):.2f} MB"
+
+        return f"{size / (1024 ** 3):.2f} GB"
+
+    # ==================================================
 
     def clear(self):
 
@@ -125,34 +135,47 @@ class FileList(ctk.CTkFrame):
 
         self.file_rows.clear()
 
-    # ======================================
+        self.heading.configure(
+            text="Selected Files (0)"
+        )
+
+        self.progress.set(0)
+
+        self.status.configure(
+            text="Status: Ready"
+        )
+
+    # ==================================================
 
     def populate(self, files):
 
         self.clear()
 
-        for file in files:
+        self.heading.configure(
+            text=f"Selected Files ({len(files)})"
+        )
+
+        for index, file in enumerate(files):
 
             path = Path(file)
 
             row = ctk.CTkFrame(
                 self.file_frame,
-                fg_color="transparent"
+                fg_color=("gray90", "gray18") if index % 2 else "transparent"
             )
 
             row.pack(
                 fill="x",
-                pady=2
+                pady=2,
+                padx=2
             )
-
-            size = path.stat().st_size / (1024 * 1024)
 
             ctk.CTkLabel(
                 row,
                 text=path.name,
-                width=300,
+                width=340,
                 anchor="w"
-            ).pack(side="left")
+            ).pack(side="left", padx=(5, 0))
 
             ctk.CTkLabel(
                 row,
@@ -162,7 +185,7 @@ class FileList(ctk.CTkFrame):
 
             ctk.CTkLabel(
                 row,
-                text=f"{size:.2f} MB",
+                text=self.format_size(path.stat().st_size),
                 width=100
             ).pack(side="left")
 
@@ -178,19 +201,19 @@ class FileList(ctk.CTkFrame):
 
             self.file_rows.append(row)
 
-    # ======================================
+    # ==================================================
 
     def set_status(self, text):
 
-        self.status.configure(text=text)
+        self.status.configure(text=f"Status: {text}")
 
-    # ======================================
+    # ==================================================
 
     def set_progress(self, value):
 
         self.progress.set(value)
 
-    # ======================================
+    # ==================================================
 
     def update_row(self, index, text):
 

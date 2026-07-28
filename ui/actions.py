@@ -134,6 +134,44 @@ class AppActions:
             os.startfile(folder)
 
     # ==================================================
+    # Convert Single File
+    # ==================================================
+
+    def convert_single_file(self, index):
+        if not (0 <= index < len(self.selected_files)):
+            return
+
+        file_path = Path(self.selected_files[index])
+        quality = int(self.sidebar.quality_slider.get())
+
+        self.file_list.update_row(index, "Processing...")
+        self.file_statuses[file_path] = "Processing..."
+        self.update_idletasks()
+
+        def do_convert():
+            result, message = convert_image(
+                file_path,
+                output_folder=self.output_folder,
+                quality=quality
+            )
+
+            if result:
+                status_text = "Converted ✅"
+            else:
+                status_text = "Failed ❌"
+
+            self.file_statuses[file_path] = status_text
+
+            def update_ui():
+                self.file_list.update_row(index, status_text)
+                self.sidebar.open_output_btn.configure(state="normal")
+                self.file_list.set_status(f"{file_path.name}: {status_text}")
+
+            self.after(0, update_ui)
+
+        threading.Thread(target=do_convert, daemon=True).start()
+
+    # ==================================================
     # Start Conversion
     # ==================================================
 

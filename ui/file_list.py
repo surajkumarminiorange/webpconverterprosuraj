@@ -198,7 +198,7 @@ class FileList(ctk.CTkFrame):
             text_color="#a1a1aa"
         ).pack(side="left", padx=(12, 0), expand=True, fill="x")
 
-        for text, width in [("Format", 75), ("Size", 90), ("Status", 130)]:
+        for text, width in [("Format", 75), ("Status", 130)]:
             ctk.CTkLabel(
                 header,
                 text=text,
@@ -208,12 +208,15 @@ class FileList(ctk.CTkFrame):
                 text_color="#a1a1aa"
             ).pack(side="left")
 
-        # Action column spacing
+        # Header for Actions column
         ctk.CTkLabel(
             header,
-            text="",
-            width=36
-        ).pack(side="right")
+            text="Actions",
+            width=160,
+            anchor="center",
+            font=("Segoe UI", 12, "bold"),
+            text_color="#a1a1aa"
+        ).pack(side="right", padx=(0, 10))
 
     # ==================================================
     # Size Formatter
@@ -303,15 +306,6 @@ class FileList(ctk.CTkFrame):
                 text_color=format_col
             ).pack(expand=True)
 
-            # File Size Label
-            ctk.CTkLabel(
-                row,
-                text=self.format_size(path.stat().st_size if path.exists() else 0),
-                width=90,
-                font=("Segoe UI", 12),
-                text_color="#d4d4d8"
-            ).pack(side="left")
-
             # Status Label
             is_converted = "Converted" in status_text or "✅" in status_text
             is_failed = "Failed" in status_text or "❌" in status_text
@@ -328,21 +322,35 @@ class FileList(ctk.CTkFrame):
             status.pack(side="left")
             row.status_label = status
 
-            # Remove Individual Row Button
+            # Action Buttons Container (Convert + Remove)
+            actions_frame = ctk.CTkFrame(row, fg_color="transparent")
+            actions_frame.pack(side="right", padx=(5, 8))
+
+            convert_btn = ctk.CTkButton(
+                actions_frame,
+                text="⚡ Convert",
+                width=72,
+                height=26,
+                corner_radius=5,
+                fg_color="#059669",
+                hover_color="#047857",
+                font=("Segoe UI", 11, "bold"),
+                command=lambda idx=index: self.master.convert_single_file(idx)
+            )
+            convert_btn.pack(side="left", padx=(0, 6))
+
             remove_btn = ctk.CTkButton(
-                row,
-                text="✕",
-                width=26,
-                height=24,
-                corner_radius=4,
-                fg_color="transparent",
-                hover_color="#dc2626",
-                text_color="#ef4444",
-                font=("Segoe UI", 12, "bold"),
+                actions_frame,
+                text="✕ Remove",
+                width=72,
+                height=26,
+                corner_radius=5,
+                fg_color="#dc2626",
+                hover_color="#b91c1c",
+                font=("Segoe UI", 11, "bold"),
                 command=lambda idx=index: self.master.remove_file(idx)
             )
-            remove_btn.pack(side="right", padx=(5, 8))
-            row.remove_btn = remove_btn
+            remove_btn.pack(side="left")
 
             self.file_rows.append(row)
 

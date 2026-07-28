@@ -142,7 +142,7 @@ class FileList(ctk.CTkFrame):
 
         title = ctk.CTkLabel(
             placeholder_card,
-            text="Add Images to Convert",
+            text="Drag & Drop Images or Folders Here",
             font=("Segoe UI", 18, "bold"),
             text_color="#e4e4e7"
         )
@@ -150,7 +150,7 @@ class FileList(ctk.CTkFrame):
 
         subtitle = ctk.CTkLabel(
             placeholder_card,
-            text="Use Files or Folder on the sidebar to select images",
+            text="or click Files / Folder on the sidebar to select images",
             font=("Segoe UI", 13),
             text_color="#a1a1aa"
         )

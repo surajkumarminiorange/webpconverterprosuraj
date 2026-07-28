@@ -59,6 +59,22 @@ class AppActions:
             )
 
     # ==================================================
+    # Drag & Drop Event Handler
+    # ==================================================
+
+    def on_drop_files(self, event):
+        if not event or not hasattr(event, "data") or not event.data:
+            return
+
+        try:
+            files = self.tk.splitlist(event.data)
+        except Exception:
+            files = [event.data]
+
+        if files:
+            self.add_files(files)
+
+    # ==================================================
     # Browse Images
     # ==================================================
 

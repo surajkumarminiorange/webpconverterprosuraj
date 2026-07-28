@@ -1,15 +1,22 @@
 # pyrefly: ignore [missing-import]
 import customtkinter as ctk
+from tkinterdnd2 import TkinterDnD, DND_FILES
 
 from ui.sidebar import Sidebar
 from ui.file_list import FileList
 from ui.actions import AppActions
 
 
-class WebPConverterApp(ctk.CTk, AppActions):
+class WebPConverterApp(ctk.CTk, TkinterDnD.DnDWrapper, AppActions):
 
     def __init__(self):
         super().__init__()
+
+        # Initialize TkDND Tcl Extension
+        try:
+            self.TkdndVersion = TkinterDnD._require(self)
+        except Exception:
+            pass
 
         # ==================================================
         # Window Settings
@@ -114,3 +121,18 @@ class WebPConverterApp(ctk.CTk, AppActions):
             padx=15,
             pady=15
         )
+
+        # ==================================================
+        # Register Drag & Drop Drop Targets
+        # ==================================================
+        try:
+            self.drop_target_register(DND_FILES)
+            self.dnd_bind("<<Drop>>", self.on_drop_files)
+
+            self.file_list.drop_target_register(DND_FILES)
+            self.file_list.dnd_bind("<<Drop>>", self.on_drop_files)
+
+            self.file_list.file_frame.drop_target_register(DND_FILES)
+            self.file_list.file_frame.dnd_bind("<<Drop>>", self.on_drop_files)
+        except Exception as e:
+            print("Drag and drop registration notice:", e)

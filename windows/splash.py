@@ -26,6 +26,11 @@ class SplashScreen(ctk.CTkToplevel):
         self.geometry(f"{width}x{height}+{x}+{y}")
         self.configure(fg_color="#030712")
 
+        try:
+            self.iconbitmap("assets/icon.ico")
+        except Exception:
+            pass
+
         # -----------------------------
         # Outer Card Container
         # -----------------------------

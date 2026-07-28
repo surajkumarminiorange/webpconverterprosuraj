@@ -142,7 +142,7 @@ class FileList(ctk.CTkFrame):
 
         title = ctk.CTkLabel(
             placeholder_card,
-            text="Add Images to Convert",
+            text="Drag & Drop Images or Folders Here",
             font=("Segoe UI", 18, "bold"),
             text_color="#e4e4e7"
         )
@@ -150,7 +150,7 @@ class FileList(ctk.CTkFrame):
 
         subtitle = ctk.CTkLabel(
             placeholder_card,
-            text="Use Files or Folder on the sidebar to select images",
+            text="or click Files / Folder on the sidebar to select images",
             font=("Segoe UI", 13),
             text_color="#a1a1aa"
         )
@@ -247,6 +247,36 @@ class FileList(ctk.CTkFrame):
         self.show_placeholder()
 
     # ==================================================
+    # Remove Single Row (Flicker-Free)
+    # ==================================================
+
+    def remove_single_row(self, file_path, remaining_files):
+        target_path = Path(file_path)
+        row_to_destroy = None
+
+        for row in self.file_rows:
+            if getattr(row, "file_path", None) == target_path:
+                row_to_destroy = row
+                break
+
+        if row_to_destroy:
+            self.file_rows.remove(row_to_destroy)
+            row_to_destroy.destroy()
+
+        if not remaining_files:
+            self.clear()
+            return
+
+        total_bytes = sum(Path(f).stat().st_size for f in remaining_files if Path(f).exists())
+        size_str = self.format_size(total_bytes)
+        self.heading.configure(text=f"Selected Files ({len(remaining_files)})")
+        self.summary_badge.configure(text=f"Total: {size_str}")
+
+        # Update alternating colors seamlessly
+        for index, row in enumerate(self.file_rows):
+            row.configure(fg_color="#18181b" if index % 2 == 0 else "#252528")
+
+    # ==================================================
     # Populate Files
     # ==================================================
 
@@ -320,6 +350,7 @@ class FileList(ctk.CTkFrame):
                 text_color=status_col
             )
             status.pack(side="left")
+            row.file_path = path
             row.status_label = status
 
             # Action Buttons Container (Convert + Remove)
@@ -335,7 +366,7 @@ class FileList(ctk.CTkFrame):
                 fg_color="#059669",
                 hover_color="#047857",
                 font=("Segoe UI", 11, "bold"),
-                command=lambda idx=index: self.master.convert_single_file(idx)
+                command=lambda p=path: self.master.convert_single_file_by_path(p)
             )
             convert_btn.pack(side="left", padx=(0, 6))
 
@@ -348,7 +379,7 @@ class FileList(ctk.CTkFrame):
                 fg_color="#dc2626",
                 hover_color="#b91c1c",
                 font=("Segoe UI", 11, "bold"),
-                command=lambda idx=index: self.master.remove_file(idx)
+                command=lambda p=path: self.master.remove_file_by_path(p)
             )
             remove_btn.pack(side="left")
 
@@ -364,9 +395,20 @@ class FileList(ctk.CTkFrame):
     def set_progress(self, value):
         self.progress.set(value)
 
-    def update_row(self, index, text):
-        if 0 <= index < len(self.file_rows):
-            status_label = self.file_rows[index].status_label
+    def update_row(self, identifier, text):
+        target_row = None
+        if isinstance(identifier, int):
+            if 0 <= identifier < len(self.file_rows):
+                target_row = self.file_rows[identifier]
+        else:
+            target_path = Path(identifier)
+            for row in self.file_rows:
+                if getattr(row, "file_path", None) == target_path:
+                    target_row = row
+                    break
+
+        if target_row and hasattr(target_row, "status_label"):
+            status_label = target_row.status_label
             status_label.configure(text=text)
             if "Converted" in text or "✅" in text:
                 status_label.configure(text_color="#4ade80")

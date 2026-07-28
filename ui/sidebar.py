@@ -134,7 +134,24 @@ class Sidebar(ctk.CTkFrame):
 
         self.output_button.pack(
             padx=20,
-            pady=10,
+            pady=(10, 5),
+            fill="x"
+        )
+
+        # ==================================================
+        # Open Output Folder
+        # ==================================================
+
+        self.open_output_btn = ctk.CTkButton(
+            self,
+            text="📂 Open Output Folder",
+            height=36,
+            state="disabled"
+        )
+
+        self.open_output_btn.pack(
+            padx=20,
+            pady=(5, 20),
             fill="x"
         )
 
@@ -162,6 +179,7 @@ class Sidebar(ctk.CTkFrame):
     # ==================================================
 
     def update_quality(self, value):
+
         self.quality_label.configure(
             text=f"{int(value)}%"
         )
@@ -191,3 +209,7 @@ class Sidebar(ctk.CTkFrame):
         self.output_entry.delete(0, "end")
 
         self.output_entry.configure(state="readonly")
+
+        self.open_output_btn.configure(
+            state="disabled"
+        )

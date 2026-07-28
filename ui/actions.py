@@ -217,3 +217,50 @@ class AppActions:
         self.sidebar.convert_btn.configure(
             state="normal"
         )
+        # ==================================================
+    # Clear All Files
+    # ==================================================
+
+    def clear_all_files(self):
+
+        self.selected_files.clear()
+
+        self.output_folder = None
+
+        self.file_list.clear()
+
+        self.sidebar.clear_output_folder()
+
+        self.sidebar.convert_btn.configure(
+            state="disabled"
+        )
+
+        self.sidebar.open_output_btn.configure(
+            state="disabled"
+        )
+
+        self.file_list.set_status(
+            "Ready"
+        )
+
+    # ==================================================
+    # Remove Single File
+    # ==================================================
+
+    def remove_file(self, index):
+
+        if 0 <= index < len(self.selected_files):
+
+            self.selected_files.pop(index)
+
+            if self.selected_files:
+
+                self.file_list.populate(self.selected_files)
+
+                self.file_list.set_status(
+                    f"{len(self.selected_files)} file(s) selected"
+                )
+
+            else:
+
+                self.clear_all_files()

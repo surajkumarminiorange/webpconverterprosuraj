@@ -87,6 +87,9 @@ class WebPConverterApp(ctk.CTk, AppActions):
         self.sidebar.convert_btn.configure(
             command=self.start_conversion
         )
+        self.sidebar.clear_btn.configure(
+            command=self.clear_all_files
+        )
 
         # ==================================================
         # File List

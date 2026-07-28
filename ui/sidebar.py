@@ -151,6 +151,24 @@ class Sidebar(ctk.CTkFrame):
 
         self.open_output_btn.pack(
             padx=20,
+            pady=(5, 5),
+            fill="x"
+        )
+
+        # ==================================================
+        # Clear All
+        # ==================================================
+
+        self.clear_btn = ctk.CTkButton(
+            self,
+            text="🗑️ Clear All",
+            height=36,
+            fg_color="#C0392B",
+            hover_color="#A93226"
+        )
+
+        self.clear_btn.pack(
+            padx=20,
             pady=(5, 20),
             fill="x"
         )
@@ -197,6 +215,10 @@ class Sidebar(ctk.CTkFrame):
         self.output_entry.insert(0, folder_path)
 
         self.output_entry.configure(state="readonly")
+
+        self.open_output_btn.configure(
+            state="normal"
+        )
 
     # ==================================================
     # Clear Output Folder

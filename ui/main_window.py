@@ -19,6 +19,12 @@ class WebPConverterApp(ctk.CTk, AppActions):
         self.geometry("1020x650")
         self.minsize(700, 480)
 
+        # Set Window Titlebar & Taskbar Icon
+        try:
+            self.iconbitmap("assets/icon.ico")
+        except Exception:
+            pass
+
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("blue")
 

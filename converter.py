@@ -18,7 +18,7 @@ SUPPORTED_EXTENSIONS = {
 }
 
 
-def convert_image(image_path, output_folder=None, quality=80):
+def convert_image(image_path, output_folder=None, quality=80, lossless=False):
     """
     Convert a single image to WebP.
 
@@ -51,11 +51,19 @@ def convert_image(image_path, output_folder=None, quality=80):
 
             output_file = image_path.with_suffix(".webp")
 
+        save_kwargs = {
+            "quality": int(quality),
+            "method": 6,
+            "lossless": bool(lossless)
+        }
+
+        if getattr(img, "is_animated", False):
+            save_kwargs["save_all"] = True
+
         img.save(
             output_file,
             "WEBP",
-            quality=int(quality),
-            method=6
+            **save_kwargs
         )
 
         return True, output_file

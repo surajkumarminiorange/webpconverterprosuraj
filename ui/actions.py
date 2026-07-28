@@ -123,15 +123,18 @@ class AppActions:
 
     def open_output_folder(self):
 
+        folder = None
         if self.output_folder:
-
-            os.startfile(self.output_folder)
-
+            folder = Path(self.output_folder)
         elif self.selected_files:
-
             folder = Path(self.selected_files[0]).parent
 
+        if folder:
+            if not folder.exists():
+                folder.mkdir(parents=True, exist_ok=True)
             os.startfile(folder)
+        else:
+            self.file_list.set_status("No output directory available")
 
     # ==================================================
     # Convert Single File
@@ -143,23 +146,20 @@ class AppActions:
 
         file_path = Path(self.selected_files[index])
         quality = int(self.sidebar.quality_slider.get())
+        lossless = bool(hasattr(self.sidebar, "lossless_switch") and self.sidebar.lossless_switch.get() == 1)
 
         self.file_list.update_row(index, "Processing...")
         self.file_statuses[file_path] = "Processing..."
-        self.update_idletasks()
 
         def do_convert():
             result, message = convert_image(
                 file_path,
                 output_folder=self.output_folder,
-                quality=quality
+                quality=quality,
+                lossless=lossless
             )
 
-            if result:
-                status_text = "Converted ✅"
-            else:
-                status_text = "Failed ❌"
-
+            status_text = "Converted ✅" if result else "Failed ❌"
             self.file_statuses[file_path] = status_text
 
             def update_ui():
@@ -200,12 +200,10 @@ class AppActions:
     def convert_images(self):
 
         total = len(self.selected_files)
-
         success = 0
 
-        quality = int(
-            self.sidebar.quality_slider.get()
-        )
+        quality = int(self.sidebar.quality_slider.get())
+        lossless = bool(hasattr(self.sidebar, "lossless_switch") and self.sidebar.lossless_switch.get() == 1)
 
         for index, file in enumerate(self.selected_files):
 
@@ -214,63 +212,48 @@ class AppActions:
             # Skip if this file is already converted successfully
             if self.file_statuses.get(file_path) == "Converted ✅":
                 success += 1
-                self.file_list.set_progress((index + 1) / total)
+                prog = (index + 1) / total
+                self.after(0, lambda p=prog: self.file_list.set_progress(p))
                 continue
 
-            self.file_list.update_row(
-                index,
-                "Processing..."
-            )
             self.file_statuses[file_path] = "Processing..."
+            curr_idx = index
+            self.after(0, lambda idx=curr_idx: self.file_list.update_row(idx, "Processing..."))
 
             result, message = convert_image(
-                file,
+                file_path,
                 output_folder=self.output_folder,
-                quality=quality
+                quality=quality,
+                lossless=lossless
             )
 
             if result:
-
                 success += 1
-
-                self.file_list.update_row(
-                    index,
-                    "Converted ✅"
-                )
-                self.file_statuses[file_path] = "Converted ✅"
-
+                status_text = "Converted ✅"
             else:
+                status_text = "Failed ❌"
 
-                self.file_list.update_row(
-                    index,
-                    "Failed ❌"
-                )
-                self.file_statuses[file_path] = "Failed ❌"
+            self.file_statuses[file_path] = status_text
+            prog = (index + 1) / total
+            curr_success = success
+            curr_status = status_text
 
-            self.file_list.set_progress(
-                (index + 1) / total
-            )
+            def update_step(idx=curr_idx, st=curr_status, p=prog, i=curr_idx + 1):
+                self.file_list.update_row(idx, st)
+                self.file_list.set_progress(p)
+                self.file_list.set_status(f"Converting {i} of {total}")
 
-            self.file_list.set_status(
-                f"Converting {index + 1} of {total}"
-            )
+            self.after(0, update_step)
 
-            self.update_idletasks()
+        final_success = success
 
-        self.file_list.set_progress(1)
+        def update_complete():
+            self.file_list.set_progress(1)
+            self.file_list.set_status(f"Completed • {final_success}/{total} converted")
+            self.sidebar.open_output_btn.configure(state="normal")
+            self.sidebar.convert_btn.configure(state="normal")
 
-        self.file_list.set_status(
-            f"Completed • {success}/{total} converted"
-        )
-
-        # Enable Open Output Folder button
-        self.sidebar.open_output_btn.configure(
-            state="normal"
-        )
-
-        self.sidebar.convert_btn.configure(
-            state="normal"
-        )
+        self.after(0, update_complete)
 
     # ==================================================
     # Clear All Files
@@ -303,6 +286,18 @@ class AppActions:
     # Remove Single File
     # ==================================================
 
+    def convert_single_file_by_path(self, path):
+        file_path = Path(path)
+        if file_path in self.selected_files:
+            idx = self.selected_files.index(file_path)
+            self.convert_single_file(idx)
+
+    def remove_file_by_path(self, path):
+        file_path = Path(path)
+        if file_path in self.selected_files:
+            idx = self.selected_files.index(file_path)
+            self.remove_file(idx)
+
     def remove_file(self, index):
 
         if 0 <= index < len(self.selected_files):
@@ -312,7 +307,7 @@ class AppActions:
 
             if self.selected_files:
 
-                self.file_list.populate(self.selected_files, self.file_statuses)
+                self.file_list.remove_single_row(removed, self.selected_files)
 
                 self.file_list.set_status(
                     f"{len(self.selected_files)} file(s) selected"

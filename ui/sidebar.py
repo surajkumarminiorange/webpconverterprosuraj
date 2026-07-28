@@ -17,32 +17,19 @@ class Sidebar(ctk.CTkFrame):
         self.pack_propagate(False)
 
         # ==================================================
-        # Header Bar (Icon logo + Compact Title)
+        # Header Bar (Clean Section Title)
         # ==================================================
 
         self.header_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.header_frame.pack(fill="x", padx=14, pady=(14, 6))
+        self.header_frame.pack(fill="x", padx=14, pady=(16, 6))
 
-        try:
-            icon_img = Image.open("assets/icon.ico")
-            self.logo = ctk.CTkImage(light_image=icon_img, dark_image=icon_img, size=(24, 24))
-            self.title_label = ctk.CTkLabel(
-                self.header_frame,
-                text=" WebP Converter Pro",
-                image=self.logo,
-                compound="left",
-                font=("Segoe UI", 14, "bold"),
-                text_color="#f4f4f5",
-                anchor="w"
-            )
-        except Exception:
-            self.title_label = ctk.CTkLabel(
-                self.header_frame,
-                text="🖼️ WebP Converter Pro",
-                font=("Segoe UI", 14, "bold"),
-                text_color="#f4f4f5",
-                anchor="w"
-            )
+        self.title_label = ctk.CTkLabel(
+            self.header_frame,
+            text="⚡ Conversion Panel",
+            font=("Segoe UI", 14, "bold"),
+            text_color="#f4f4f5",
+            anchor="w"
+        )
         self.title_label.pack(fill="x")
 
         self.subtitle = ctk.CTkLabel(
@@ -255,6 +242,60 @@ class Sidebar(ctk.CTkFrame):
             font=("Segoe UI", 14, "bold")
         )
         self.convert_btn.pack(fill="x")
+
+        # Compact Developer Branding Footer
+        self.brand_footer = ctk.CTkFrame(
+            self.footer_frame,
+            fg_color="#202023",
+            corner_radius=6,
+            border_width=1,
+            border_color="#2c2c30"
+        )
+        self.brand_footer.pack(fill="x", pady=(6, 0))
+
+        # Developed by line
+        dev_frame = ctk.CTkFrame(self.brand_footer, fg_color="transparent")
+        dev_frame.pack(pady=(3, 0))
+
+        ctk.CTkLabel(
+            dev_frame,
+            text="👤 Developed by ",
+            font=("Segoe UI", 9),
+            text_color="#a1a1aa"
+        ).pack(side="left")
+
+        ctk.CTkLabel(
+            dev_frame,
+            text="Suraj Kumar",
+            font=("Segoe UI", 9, "bold"),
+            text_color="#60a5fa"
+        ).pack(side="left")
+
+        # Email line
+        ctk.CTkLabel(
+            self.brand_footer,
+            text="suraj.kumar@xecurify.com",
+            font=("Segoe UI", 8),
+            text_color="#71717a"
+        ).pack(pady=0)
+
+        # Powered by miniOrange line
+        powered_frame = ctk.CTkFrame(self.brand_footer, fg_color="transparent")
+        powered_frame.pack(pady=(0, 3))
+
+        ctk.CTkLabel(
+            powered_frame,
+            text="⚡ Powered by ",
+            font=("Segoe UI", 8),
+            text_color="#a1a1aa"
+        ).pack(side="left")
+
+        ctk.CTkLabel(
+            powered_frame,
+            text="miniOrange",
+            font=("Segoe UI", 8, "bold"),
+            text_color="#fb923c"
+        ).pack(side="left")
 
     # ==================================================
     # Event Callbacks & Helpers

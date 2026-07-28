@@ -1,5 +1,5 @@
 import threading
-import shlex
+import os
 from pathlib import Path
 from tkinter import filedialog
 
@@ -92,16 +92,6 @@ class AppActions:
         self.add_files([folder])
 
     # ==================================================
-    # Drag & Drop
-    # ==================================================
-
-    def handle_drop(self, event):
-
-        paths = shlex.split(event.data)
-
-        self.add_files(paths)
-
-    # ==================================================
     # Choose Output Folder
     # ==================================================
 
@@ -121,6 +111,22 @@ class AppActions:
         self.file_list.set_status(
             "Output folder selected"
         )
+
+    # ==================================================
+    # Open Output Folder
+    # ==================================================
+
+    def open_output_folder(self):
+
+        if self.output_folder:
+
+            os.startfile(self.output_folder)
+
+        elif self.selected_files:
+
+            folder = Path(self.selected_files[0]).parent
+
+            os.startfile(folder)
 
     # ==================================================
     # Start Conversion
@@ -201,6 +207,11 @@ class AppActions:
 
         self.file_list.set_status(
             f"Completed • {success}/{total} converted"
+        )
+
+        # Enable Open Output Folder button
+        self.sidebar.open_output_btn.configure(
+            state="normal"
         )
 
         self.sidebar.convert_btn.configure(

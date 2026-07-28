@@ -51,7 +51,7 @@ class FileList(ctk.CTkFrame):
 
         self.placeholder = ctk.CTkLabel(
             self.file_frame,
-            text="📂\n\nDrag & Drop Images Here\n\nor\n\nUse Browse Images / Browse Folder",
+            text="📂\n\nNo Images Selected\n\nUse\n\nBrowse Images\nor\nBrowse Folder",
             font=("Segoe UI", 18),
             justify="center",
             text_color="gray"
@@ -167,7 +167,7 @@ class FileList(ctk.CTkFrame):
 
         self.placeholder = ctk.CTkLabel(
             self.file_frame,
-            text="📂\n\nDrag & Drop Images Here\n\nor\n\nUse Browse Images / Browse Folder",
+            text="📂\n\nNo Images Selected\n\nUse\n\nBrowse Images\nor\nBrowse Folder",
             font=("Segoe UI", 18),
             justify="center",
             text_color="gray"
@@ -183,8 +183,6 @@ class FileList(ctk.CTkFrame):
     def populate(self, files):
 
         self.clear()
-
-        # Remove placeholder
 
         self.placeholder.destroy()
 

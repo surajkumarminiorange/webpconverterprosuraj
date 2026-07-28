@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 import customtkinter as ctk
 
 from ui.sidebar import Sidebar
@@ -15,8 +16,8 @@ class WebPConverterApp(ctk.CTk, AppActions):
         # ==================================================
 
         self.title("WebP Converter Pro")
-        self.geometry("1100x700")
-        self.minsize(950, 650)
+        self.geometry("1020x650")
+        self.minsize(700, 480)
 
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("blue")
@@ -27,6 +28,9 @@ class WebPConverterApp(ctk.CTk, AppActions):
 
         # Selected input images
         self.selected_files = []
+
+        # Map Path -> Status string ("Waiting", "Converted ✅", "Failed ❌")
+        self.file_statuses = {}
 
         # None = Save beside original image
         self.output_folder = None

@@ -14,6 +14,9 @@ class AppActions:
 
     def add_files(self, files):
 
+        if not hasattr(self, "file_statuses"):
+            self.file_statuses = {}
+
         added = False
 
         for file in files:
@@ -30,6 +33,7 @@ class AppActions:
                         and img not in self.selected_files
                     ):
                         self.selected_files.append(img)
+                        self.file_statuses[img] = "Waiting"
                         added = True
 
             elif (
@@ -39,11 +43,12 @@ class AppActions:
             ):
 
                 self.selected_files.append(file)
+                self.file_statuses[file] = "Waiting"
                 added = True
 
         if added:
 
-            self.file_list.populate(self.selected_files)
+            self.file_list.populate(self.selected_files, self.file_statuses)
 
             self.file_list.set_status(
                 f"{len(self.selected_files)} file(s) selected"
@@ -166,10 +171,19 @@ class AppActions:
 
         for index, file in enumerate(self.selected_files):
 
+            file_path = Path(file)
+
+            # Skip if this file is already converted successfully
+            if self.file_statuses.get(file_path) == "Converted ✅":
+                success += 1
+                self.file_list.set_progress((index + 1) / total)
+                continue
+
             self.file_list.update_row(
                 index,
                 "Processing..."
             )
+            self.file_statuses[file_path] = "Processing..."
 
             result, message = convert_image(
                 file,
@@ -185,6 +199,7 @@ class AppActions:
                     index,
                     "Converted ✅"
                 )
+                self.file_statuses[file_path] = "Converted ✅"
 
             else:
 
@@ -192,6 +207,7 @@ class AppActions:
                     index,
                     "Failed ❌"
                 )
+                self.file_statuses[file_path] = "Failed ❌"
 
             self.file_list.set_progress(
                 (index + 1) / total
@@ -217,13 +233,15 @@ class AppActions:
         self.sidebar.convert_btn.configure(
             state="normal"
         )
-        # ==================================================
+
+    # ==================================================
     # Clear All Files
     # ==================================================
 
     def clear_all_files(self):
 
         self.selected_files.clear()
+        self.file_statuses.clear()
 
         self.output_folder = None
 
@@ -251,11 +269,12 @@ class AppActions:
 
         if 0 <= index < len(self.selected_files):
 
-            self.selected_files.pop(index)
+            removed = self.selected_files.pop(index)
+            self.file_statuses.pop(removed, None)
 
             if self.selected_files:
 
-                self.file_list.populate(self.selected_files)
+                self.file_list.populate(self.selected_files, self.file_statuses)
 
                 self.file_list.set_status(
                     f"{len(self.selected_files)} file(s) selected"

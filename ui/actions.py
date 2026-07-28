@@ -1,4 +1,5 @@
 import threading
+import shlex
 from pathlib import Path
 from tkinter import filedialog
 
@@ -6,6 +7,51 @@ from converter import convert_image
 
 
 class AppActions:
+
+    # ==================================================
+    # Common Add Files Method
+    # ==================================================
+
+    def add_files(self, files):
+
+        added = False
+
+        for file in files:
+
+            file = Path(file)
+
+            if file.is_dir():
+
+                for img in file.rglob("*"):
+
+                    if (
+                        img.is_file()
+                        and img.suffix.lower() in self.supported_extensions
+                        and img not in self.selected_files
+                    ):
+                        self.selected_files.append(img)
+                        added = True
+
+            elif (
+                file.is_file()
+                and file.suffix.lower() in self.supported_extensions
+                and file not in self.selected_files
+            ):
+
+                self.selected_files.append(file)
+                added = True
+
+        if added:
+
+            self.file_list.populate(self.selected_files)
+
+            self.file_list.set_status(
+                f"{len(self.selected_files)} file(s) selected"
+            )
+
+            self.sidebar.convert_btn.configure(
+                state="normal"
+            )
 
     # ==================================================
     # Browse Images
@@ -28,17 +74,7 @@ class AppActions:
         if not files:
             return
 
-        self.selected_files = list(files)
-
-        self.file_list.populate(self.selected_files)
-
-        self.file_list.set_status(
-            f"{len(self.selected_files)} file(s) selected"
-        )
-
-        self.sidebar.convert_btn.configure(
-            state="normal"
-        )
+        self.add_files(files)
 
     # ==================================================
     # Browse Folder
@@ -53,27 +89,17 @@ class AppActions:
         if not folder:
             return
 
-        folder = Path(folder)
+        self.add_files([folder])
 
-        self.selected_files = []
+    # ==================================================
+    # Drag & Drop
+    # ==================================================
 
-        for file in folder.rglob("*"):
+    def handle_drop(self, event):
 
-            if (
-                file.is_file()
-                and file.suffix.lower() in self.supported_extensions
-            ):
-                self.selected_files.append(file)
+        paths = shlex.split(event.data)
 
-        self.file_list.populate(self.selected_files)
-
-        self.file_list.set_status(
-            f"{len(self.selected_files)} image(s) found"
-        )
-
-        self.sidebar.convert_btn.configure(
-            state="normal" if self.selected_files else "disabled"
-        )
+        self.add_files(paths)
 
     # ==================================================
     # Choose Output Folder
@@ -161,9 +187,9 @@ class AppActions:
                     "Failed ❌"
                 )
 
-            progress = (index + 1) / total
-
-            self.file_list.set_progress(progress)
+            self.file_list.set_progress(
+                (index + 1) / total
+            )
 
             self.file_list.set_status(
                 f"Converting {index + 1} of {total}"

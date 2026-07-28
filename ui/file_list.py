@@ -31,7 +31,7 @@ class FileList(ctk.CTkFrame):
         )
 
         # ==================================================
-        # File List
+        # File Area
         # ==================================================
 
         self.file_frame = ctk.CTkScrollableFrame(
@@ -47,10 +47,23 @@ class FileList(ctk.CTkFrame):
             pady=10
         )
 
-        self.create_header()
+        # Empty Placeholder
+
+        self.placeholder = ctk.CTkLabel(
+            self.file_frame,
+            text="📂\n\nDrag & Drop Images Here\n\nor\n\nUse Browse Images / Browse Folder",
+            font=("Segoe UI", 18),
+            justify="center",
+            text_color="gray"
+        )
+
+        self.placeholder.pack(
+            expand=True,
+            pady=120
+        )
 
         # ==================================================
-        # Progress Bar
+        # Progress
         # ==================================================
 
         self.progress = ctk.CTkProgressBar(self)
@@ -145,15 +158,41 @@ class FileList(ctk.CTkFrame):
             text="Status: Ready"
         )
 
+        # Remove everything from file frame
+
+        for widget in self.file_frame.winfo_children():
+            widget.destroy()
+
+        # Show Placeholder
+
+        self.placeholder = ctk.CTkLabel(
+            self.file_frame,
+            text="📂\n\nDrag & Drop Images Here\n\nor\n\nUse Browse Images / Browse Folder",
+            font=("Segoe UI", 18),
+            justify="center",
+            text_color="gray"
+        )
+
+        self.placeholder.pack(
+            expand=True,
+            pady=120
+        )
+
     # ==================================================
 
     def populate(self, files):
 
         self.clear()
 
+        # Remove placeholder
+
+        self.placeholder.destroy()
+
         self.heading.configure(
             text=f"Selected Files ({len(files)})"
         )
+
+        self.create_header()
 
         for index, file in enumerate(files):
 
@@ -205,7 +244,9 @@ class FileList(ctk.CTkFrame):
 
     def set_status(self, text):
 
-        self.status.configure(text=f"Status: {text}")
+        self.status.configure(
+            text=f"Status: {text}"
+        )
 
     # ==================================================
 

@@ -1,14 +1,18 @@
 import customtkinter as ctk
+from tkinterdnd2 import TkinterDnD, DND_FILES
 
 from ui.sidebar import Sidebar
 from ui.file_list import FileList
 from ui.actions import AppActions
 
 
-class WebPConverterApp(ctk.CTk, AppActions):
+class WebPConverterApp(TkinterDnD.DnDWrapper, ctk.CTk, AppActions):
 
     def __init__(self):
         super().__init__()
+
+        # Initialize Drag & Drop
+        TkinterDnD.DnDWrapper.__init__(self)
 
         # ==================================================
         # Window Settings
@@ -96,4 +100,15 @@ class WebPConverterApp(ctk.CTk, AppActions):
             sticky="nsew",
             padx=15,
             pady=15
+        )
+
+        # ==================================================
+        # Drag & Drop Registration
+        # ==================================================
+
+        self.file_list.file_frame.drop_target_register(DND_FILES)
+
+        self.file_list.file_frame.dnd_bind(
+            "<<Drop>>",
+            self.handle_drop
         )
